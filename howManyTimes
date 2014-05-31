@@ -1,0 +1,15 @@
+#!/bin/bash
+# This is just a cute program that outputs how many times you've run the program.
+
+# Variables
+COUNTER=0 #
+NEXT=$[$COUNTER+1]	
+theProgram=`basename $0`                   # Use these variables
+thePath=`readlink -f $0 | xargs dirname`   # for more readability
+
+# Do the thing
+echo "You have run howManyTimes $NEXT times."	
+
+# Update the file using a temp for safety
+sed -e "s|COUNTER=$COUNTER #|COUNTER=$NEXT #|" $thePath/$theProgram > temp
+mv temp $thePath/$theProgram && chmod 777 $thePath/$theProgram
