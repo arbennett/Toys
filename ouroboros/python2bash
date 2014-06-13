@@ -1,0 +1,1 @@
+print "bashOut=`echo $(cat quine)`; pythonOut=print\ \"$bashOut\"; echo -e $pythonOut;"

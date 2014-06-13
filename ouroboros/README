@@ -1,0 +1,1 @@
+This is a set of simple ouroboros programs to output eachother in bash and python respectively.  Output by default will go to stdout, so redirect to files.
