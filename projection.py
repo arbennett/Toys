@@ -9,7 +9,7 @@ import matplotlib.pyplot as plot
 from scipy.interpolate import interp1d
 
 Nin = 10                                    # Number of data points in 
-Nout = 30                                    # Number of points we want to project onto
+Nout = 50                                    # Number of points we want to project onto
 Nfine = Nin**2                              # Number of points for plotting pretty 
 Xin = np.linspace(-1,1,Nin)                 # The space of points
 Fin = np.cos(20*Xin)+np.sin(7*Xin)          # Evaluate some fake data
@@ -19,11 +19,12 @@ Xout = np.linspace(-1,1,Nout-1)             # Probably don't need this since we 
 I = np.eye(Nout)                            # A hack for choosing the right polynomial orders 
 zero = np.zeros(Nout-1)
 
+
 # Build our set of GLL nodes
 pts = legendre.legroots(legendre.legder(I[-1])) # GLL points
 Xi = [-1, list(pts), 1]
 Xi = np.hstack(Xi)
-print "GLL Points:", Xi
+#print "GLL Points:", Xi
 
 # Build the weight set
 weights = np.zeros([len(Xi)])
@@ -32,26 +33,30 @@ for i in range(len(Xi)-2):
 
 weights[0]=2.0/((Nout)*(Nout-1))
 weights[-1]=weights[0]
-print "GLL Weights:", weights
+#print "GLL Weights:", weights
 
-
-''' 
-# Construct b using nearest known data points
-b = np.zeros(len(Xi))
-for i in range(len(Xi)):          # For each data point
-    for j in range(len(Xi)):      # Need to sum over all basis functions
-            b[i]+=legendre.legval(Xi[i],I[j])*Fin[ np.abs(Xin-Xi[i]).argmin() ] 
-''' 
-# Construct b using a spline interpolation evaluated at the quadrature points
-b = np.zeros(len(Xi))
-for i in range(len(Xi)):
-    for j in range(len(Xi)):
-        b[i]+=legendre.legval(Xi[i],I[j])*Fspline(Xi[i])
+# Calculate the norms    
+norms = np.zeros(Nout)
+for i in range(Nout):
+    for k in range(Nout):
+        norms[i]+=weights[k]*legendre.legval(Xi[k],I[i])**2
         
-print b
-#'''    
+# Calculate the function coefficients        
+c = np.zeros(Nout)
+for i in range(Nout):
+    for k in range(Nout):
+        c[i]+=Fspline(Xi[k])*legendre.legval(Xi[k],I[i])*weights[k]   # Construct with a spline interpolation of input data
+        #c[i]+=Fin[ np.abs(Xin-Xi[k]).argmin() ]*legendre.legval(Xi[k],I[i])*weights[k] # Construct with nearest known input data point
+    c[i]=c[i]/norms[i]
+
+uh=0
+for i in range(Nout):
+    uh+=c[i]*legendre.Legendre.basis(i)
+    
+
 # Plot what we got
-plot.plot(Xin,Fin,'o-' , Xi, b,'rx-')
+#plot.plot(Xin,Fin,'o-' , Xi, b,'rx-')
+plot.plot(Xin,Fin,'o-' , Xi, uh(Xi), 'rx-')
 plot.legend(['Data', 'L2 Projection'], loc='best')
 plot.draw()
 plot.show()
