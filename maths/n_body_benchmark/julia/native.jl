@@ -14,7 +14,7 @@ function nbody(size::Int64, nstep::Int64, dt::Float64)
         if i != j
             dv_abs = G / (sqrt((pos[i, 1] - pos[j, 1])^2 + (pos[i, 2] - pos[j, 2])^2)^3)
             vel[j] += dv_abs * dt * (pos[j] - pos[i])
-	    end
+        end
     end
     # Update position
     for i = 1:size
