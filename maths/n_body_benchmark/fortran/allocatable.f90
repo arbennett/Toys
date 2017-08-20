@@ -9,6 +9,9 @@
           real, parameter :: G = 6.6741e-11
           real :: r
           real :: dv_abs
+          real :: dv_x
+          real :: dv_y
+          real :: d2
           real :: start, finish
           real, dimension(:, :), allocatable :: pos
           real, dimension(:, :), allocatable :: vel
@@ -36,14 +39,18 @@
           do t = 1,n_step
             ! Update velocity
             do i = 1,num
+              dv_x = 0.0
+              dv_y = 0.0
               do j = 1,num
                 if (i .NE. j) then
-                  r = sqrt((pos(i,1) - pos(j,1))**2 + (pos(i,2) - pos(j,2))**2)
-                  dv_abs = G / r**3
-                  vel(j, 1) = vel(j, 1) + dv_abs * dt * (pos(j, 1) - pos(i, 1))
-                  vel(j, 2) = vel(j, 2) + dv_abs * dt * (pos(j, 2) - pos(i, 2))
+                  d2 = (pos(i,1) - pos(j,1))**2 + (pos(i,2) - pos(j,2))**2
+                  dv_abs = G / (d2 + sqrt(d2))
+                  dv_x = dv_x + (dv_abs * (pos(j, 1) - pos(i, 1)))
+                  dv_y = dv_y + (dv_abs * (pos(j, 2) - pos(i, 2)))
                 end if
               end do
+              vel(i, 1) = vel(i, 1) + dv_x
+              vel(i, 2) = vel(i, 2) + dv_y
             end do
 
             ! Update position
