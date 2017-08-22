@@ -5,14 +5,15 @@ import time
 import random
 from math import sqrt
 
+import numpy as np
 from numba import jit
 
 
-@jit  # (nopython=True)
+@jit(nopython=True)
 def main(size: int, nstep: int, dt: float) -> None:
     G = 6.6741e-11
-    pos = [[random.random(), random.random()] for i in range(size)]
-    vel = [[random.random(), random.random()] for i in range(size)]
+    pos = np.random.random((size, 2))
+    vel = np.random.random((size, 2))
     for t in range(nstep):
         # Update velocity
         for i in range(size):
